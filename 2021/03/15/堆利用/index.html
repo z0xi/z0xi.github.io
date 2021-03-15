@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="z0xi">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="z0xi">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="从网上一些分享里面截取记录的，个人使用向">
+<meta property="og:type" content="article">
+<meta property="og:title" content="堆利用总结">
+<meta property="og:url" content="https://z0xi.github.io/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="从网上一些分享里面截取记录的，个人使用向">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214605-ab193452-46fc-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214605-ab559690-46fc-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-abe99aca-46fc-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-ac017a1e-46fc-1.png">
+<meta property="og:image" content="https://gblobscdn.gitbook.com/assets%2F-MHeffotUnwuuxDxBYkc%2Fsync%2F19031b0d57cede431d04da405fd251ad6a2d8257.png?alt=media">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-ac16790a-46fc-1.png">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-ac2af81c-46fc-1.png">
+<meta property="article:published_time" content="2021-03-15T04:27:00.000Z">
+<meta property="article:modified_time" content="2021-03-15T05:10:21.695Z">
+<meta property="article:author" content="z0xi">
+<meta property="article:tag" content="heap">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20180423214605-ab193452-46fc-1.png">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    
+    <title>堆利用总结 · z0xi&#39;s Blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= "/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= "/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >z0xi&#39;s Blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">堆利用总结</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>z0xi's Blog</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            堆利用总结
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "heap">heap</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">3.2k</span>Reading time: <span class="post-count reading-time">13 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2021/03/15</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p>从网上一些分享里面截取记录的，个人使用向</p>
+<span id="more"></span>
+
+<h2 id="简单的malloc和free过程"><a href="#简单的malloc和free过程" class="headerlink" title="简单的malloc和free过程"></a>简单的malloc和free过程</h2><ul>
+<li>malloc的步骤：</li>
+</ul>
+<p>fastbin找不到——》smallobin找(一般一开始都没)——》unsortedbin只有一项且为last_remainder且大小&gt;need+miniseze，划分——》不只一项就逐个摘下，大小相等返回，不等就放回对应的bin——》small和large找——》找不到就topchunk切割——》不够切就fastbin malloc_consolidate，没fastbin就sysmalloc分配内存</p>
+<p>chunksize的计算一般为#define chunksize(p) ((p)-&gt;size &amp; <del>(SIZE_BITS)) 其中</del>(SIZE_BITS)=0xfffffff8（SCTF2018 sbbs）</p>
+<ul>
+<li>free步骤：</li>
+</ul>
+<p>_GL__libc_free(如果有free_hook,调用free_hook(ptr);如果内存由mmap分配，使用munmap_chunk回收内存)——》init_free（检查指针是否对齐；检查块是否其对且是否大于最小大小；块是否inuse状态）——》如果满足fastbin（检查next_chunk的size是否小于system_mem且大于2*SIZE_SZ；检查double free）——》不满足fastbin（检查是否为topchunk；检查size域是否越界；检查nextchunk的pre_inuse是否为1;若nextchunk也是free就合并；如果得到的unsortedbin大小大于FASTBIN_CONSOLIDATION_THRESHOLD则进行malloc_consolidate）</p>
+<p><strong>free只修改fdbk，不改变堆块其他位置大部分内容</strong></p>
+<p><strong>tcache会检测nextchunk的prev_inuse,但是不会修改prev_inuse，所以可多次修改</strong></p>
+<ul>
+<li><p>unlink：</p>
+<p>相邻堆块合并主要依靠p-&gt;prevsize来索引，然后check上一个堆块的fd和bk</p>
+</li>
+</ul>
+<p>Check in glibc</p>
+<table>
+<thead>
+<tr>
+<th align="center">函数名</th>
+<th align="left">检查</th>
+<th align="left">报错信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">unlink</td>
+<td align="left">p-&gt;size == nextchunk-&gt;pre_size</td>
+<td align="left">corrupted size vs prev_size</td>
+</tr>
+<tr>
+<td align="center">unlink</td>
+<td align="left">p-&gt;fd-&gt;bk == p 且 p-&gt;bk-&gt;fd == p</td>
+<td align="left">corrupted double-linked list</td>
+</tr>
+<tr>
+<td align="center">_int_malloc</td>
+<td align="left">当从fastbin分配内存时 ,找到的那个fastbin chunk的size要等于其位于的fastbin 的大小，比如在0x20的 fastbin中其大小就要为0x20</td>
+<td align="left">malloc():memory corruption (fast)</td>
+</tr>
+<tr>
+<td align="center">_int_malloc</td>
+<td align="left">当从 smallbin 分配 chunk( victim) 时， 要求 victim-&gt;bk-&gt;fd == victim</td>
+<td align="left">malloc(): smallbin double linked list corrupted</td>
+</tr>
+<tr>
+<td align="center">_int_malloc</td>
+<td align="left">当迭代 unsorted bin 时 ，迭代中的 chunk (cur)要满足，cur-&gt;size 在 [2*SIZE_SZ, av-&gt;system_mem] 中</td>
+<td align="left">malloc(): memory corruption</td>
+</tr>
+<tr>
+<td align="center">_int_free</td>
+<td align="left">当插入一个 chunk 到 fastbin时，判断fastbin的 head 是不是和 释放的 chunk 相等</td>
+<td align="left">double free or corruption (fasttop)</td>
+</tr>
+<tr>
+<td align="center">_int_free</td>
+<td align="left">判断 next_chunk-&gt;pre_inuse == 1</td>
+<td align="left">double free or corruption (!prev</td>
+</tr>
+<tr>
+<td align="center">_int_malloc</td>
+<td align="left">当从unsortbin切割时，会检查remain_reminder后面的的那个堆块prev_size是否正常</td>
+<td align="left">corrupted size vs. prev_size</td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="https://www.lhyerror404.cn/2019/01/22/heap-exploitation%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87/">经典heap源码分析</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2307#toc-6">heap源码分析</a></p>
+<h2 id="fastbin-attack"><a href="#fastbin-attack" class="headerlink" title="fastbin attack"></a>fastbin attack</h2><p>fastbin attack存在原因：使用单链表维护</p>
+<p>攻击目标：</p>
+<h4 id="1-malloc-hook附近，"><a href="#1-malloc-hook附近，" class="headerlink" title="1._malloc_hook附近，"></a>1._malloc_hook附近，</h4><p>​        __malloc_hook - 0x23 + 0x8为p64(0x71),malloc_hook改one_gadget</p>
+<p>​        或者利用malloc和realloc_hook，malloc_hook覆盖为realloc某处地址，realloc_hook写onegadget</p>
+<p>​        若能分配到free_hook附近也行，free掉内容为/bin/sh\x00的chunk</p>
+<h4 id="2-main-arena的fastbinY数组（待考究）"><a href="#2-main-arena的fastbinY数组（待考究）" class="headerlink" title="2.main_arena的fastbinY数组（待考究）"></a>2.main_arena的fastbinY数组（待考究）</h4><p>​    效果：修改main_arena-&gt;top</p>
+<h4 id="3-std-结构体"><a href="#3-std-结构体" class="headerlink" title="3.std*结构体"></a>3.std*结构体</h4><p>​    std类结构体中有很多0x0和0x7f开头的指针，就可以修改IO_FILE结构体的指针</p>
+<h4 id="4-fastbin在main-arena构造size："><a href="#4-fastbin在main-arena构造size：" class="headerlink" title="4.fastbin在main_arena构造size："></a>4.fastbin在main_arena构造size：</h4><p>原理：在main_arena的区域，有一个存储fastbin链表的数组fastY[]，如果我们先free一个fastbin，然后修改他的fd指针为0x60,malloc一次之前的fastbin，这个fastbin的fd指针就会被放入fastbin list中（但我们不会傻到再malloc一次这样就报错了），也就是修改了fastY数组相应位置的链表数据，这时候main_arena中就出现了0x60，然后我们就可以分配一个0x60大小的fastbin上去，绕过size检查，top指针也被包裹在了这个fastbin中，这样我们就可以修改top指针到任意地址了。</p>
+<ol>
+<li>分配0x40的chunk p，释放</li>
+<li>修改p-&gt;fd为p64(0x71)</li>
+<li>分配0x40的chunk拿到p，此时main_arena-&gt;fastbinY的0x40的位置为p64(0x71)</li>
+<li>分配0x71的chunk p2并释放，修改p2-&gt;fd为main_arena-&gt;fastbinY(0x40)-0x8</li>
+<li>分配两次即可控制main_arena-&gt;top，达到分配malloc_hook等效果</li>
+</ol>
+<p>main_arena-&gt;top利用思路：(待实践)</p>
+<ul>
+<li><p>转换为写 __malloc_hook</p>
+<p><strong>malloc_hook -0x10</strong> 处存放的是指针，值很大，修改 <strong>main_arean-&gt;top 到这里</strong>，然后控制程序 使得通过 <code>top_chunk</code> 分配， 就可以分配到 <code>malloc_hook</code></p>
+</li>
+<li><p>转换为写 __free_hook</p>
+<p> <strong>free_hook-0xb58</strong> 处存放的也是一些地址，修改 <strong>main_arean-&gt;top 到这里</strong>，然后控制程序 使得通过 <code>top_chunk</code> 分配几次内存（一次分配太多，会触发 <code>sysmalloc</code>, <strong>可以一次分配 0x90 多分配几次</strong>），我们就可以分配到 <code>free_hook</code></p>
+</li>
+</ul>
+<h2 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h2><p>​    通过修改unsorted bin 的bk可达到<code> *(bk + 0x10) = main_arean-&gt;unsorted_bin</code>的效果，让任意地址写上main_arena</p>
+<p>​    使用unsorted bin attack下次再次使用unsorted bin因victim-&gt;bk-&gt;fd不可写而错误，只能使用fastbin和smallbin，所以在是使用unsortedbin attack时先把内存布局好。</p>
+<h4 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h4><h5 id="1-写stdin-gt-IO-buf-end"><a href="#1-写stdin-gt-IO-buf-end" class="headerlink" title="1.写stdin-&gt;_IO_buf_end"></a>1.写stdin-&gt;_IO_buf_end</h5><p>在 glibc中 scanf, gets 等函数默认是对 stdin 结构体进行操作。以 <code>scanf</code> 为例</p>
+<ul>
+<li>在调用 <code>scanf</code> 获取输入时，首先会把输入的东西复制到 <code>[_IO_buf_base , _IO_buf_end ]</code>, 最大大小为 <code>_IO_buf_end - _IO_buf_base</code>。</li>
+<li>修改 <code>unsorted bin</code> 的 <code>bck</code> 为 <code>_IO_base_end-0x10</code> ,就可以使 <code>_IO_base_end=main_arens+0x88</code>,我们就能修改很多东西了，而且 <code>malloc_hook</code> 就在这里面。</li>
+</ul>
+<h5 id="2-IO-list-all-和-abort-以及-修改虚表到-IO-wstrn-jumps（SCTF2018-bufoverflow-a）"><a href="#2-IO-list-all-和-abort-以及-修改虚表到-IO-wstrn-jumps（SCTF2018-bufoverflow-a）" class="headerlink" title="2.__IO_list_all 和 abort 以及 修改虚表到 _IO_wstrn_jumps（SCTF2018 bufoverflow_a）"></a>2.__IO_list_all 和 abort 以及 修改虚表到 _IO_wstrn_jumps（SCTF2018 bufoverflow_a）</h5><p>原理:绕过虚表校验，&gt;=libc2.24情况</p>
+<p> 在 libc2.24 里对 vtable 进行了校验,对 vtable 进行校验的函数是 <code>IO_validate_vtable</code></p>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20180423214605-ab193452-46fc-1.png" alt="image.png">保证 <code>vtable</code> 要在 <code>__stop___libc_IO_vtables</code> 和 <code>__start___libc_IO_vtables</code> 之间。</p>
+<p>我们的目标就是 <code>_IO_wstrn_jumps</code> ，这个也是一个 <code>vtable</code> ，能够满足 <code>IO_validate_vtable</code>的校验。</p>
+<p>在 <code>_IO_wstrn_jumps</code>中有 <code>IO_wstr_finish</code>如下 ，位于 <strong>libc.symbols[‘_IO_wstrn_jumps’] + 0x10</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void __fastcall IO_wstr_finish(_IO_FILE_2 *fp, int dummy)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_FILE_plus *fp_; &#x2F;&#x2F; rbx</span><br><span class="line">  wchar_t *io_buf_base; &#x2F;&#x2F; rdi</span><br><span class="line"></span><br><span class="line">  fp_ &#x3D; fp;</span><br><span class="line">  io_buf_base &#x3D; fp-&gt;_wide_data-&gt;_IO_buf_base;</span><br><span class="line">  if ( io_buf_base &amp;&amp; !(fp_-&gt;file._flags2 &amp; 8) )</span><br><span class="line">    (fp_[1].file._IO_read_ptr)(io_buf_base, *&amp;dummy); &#x2F;&#x2F; call    qword ptr [fp+0E8h]</span><br><span class="line">  fp_-&gt;file._wide_data-&gt;_IO_buf_base &#x3D; 0LL;</span><br><span class="line">  _GI__IO_wdefault_finish(fp_, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们把 <code>fp-&gt;_wide_data</code> 改成 <code>fp</code> ， 然后设置 <code>fp-&gt;_IO_buf_base</code> 设置为 <code>/bin/sh</code> 的地址，<code>fp_[1].file._IO_read_ptr</code> ( <strong>fp+0xe8</strong> ) 改成 <code>system</code> 的地址，其他字段根据 <code>check</code> 设置好以便过掉检查， 之后调用该函数就会 <code>system(&#39;/bin/sh&#39;)</code></p>
+<p>如何调用 <code>IO_wstr_finish</code>？：使用FSOP</p>
+<ul>
+<li><p>使用unsorted bin attack修改__IO_list_all为main_arena+88；_</p>
+</li>
+<li><p><em>触发</em>_IO_flush_all_lockup刷新文件流，它会根据_IO_list_all和其中的_chain遍历调用_IO_OVERFLOW (fp, EOF)(即(fp-&gt;vtable + 0x18)(fp, EOF)；</p>
+</li>
+<li><p>__IO_list_all-&gt;_chian刚好在small[4]**（关键在于构建出位于small[4]的fake chunk） **，当第二次遍历时就会调用fakechunk\的_IO_OVERFLOW(fp,EOF)，从而调用IO_wstr_finish。</p>
+</li>
+</ul>
+<p>64位使用模板: by 34c3bctf-300</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">payload &#x3D; p64(0xfbad2084)    #伪造的 File 结构体的开始，fp-&gt;_flag</span><br><span class="line">payload +&#x3D; p64(0x61)</span><br><span class="line">payload +&#x3D; p64(0xb00bface)  #?</span><br><span class="line">payload +&#x3D; p64(B_addr) # bk，原构造链为A-fake-B</span><br><span class="line">payload +&#x3D; p64(0x0)            # fp-&gt;_IO_write_base</span><br><span class="line">payload +&#x3D; p64(libc_base + sh_addr)     # fp-&gt;_IO_write_ptr </span><br><span class="line">payload +&#x3D; p64(libc_base + sh_addr)     # fp-&gt;wide_data-&gt;buf_base</span><br><span class="line">payload +&#x3D; &quot;A&quot;*60</span><br><span class="line">payload +&#x3D; p64(0x0)            # fp-&gt;_flags2</span><br><span class="line">payload +&#x3D; &quot;A&quot;*36</span><br><span class="line">payload +&#x3D; p64(fake_bin)    # fp-&gt;_wide_data ，设置为 fake_bin, 复用 fake_bin</span><br><span class="line">payload +&#x3D; &quot;A&quot;*24</span><br><span class="line">payload +&#x3D; p64(0x0)            # fp-&gt;_mode</span><br><span class="line">payload +&#x3D; &quot;A&quot;*16</span><br><span class="line">payload +&#x3D; p64( libc.symbols[&#39;_IO_wstrn_jumps&#39;] + 0x10 -0x18) # fake vtable</span><br><span class="line">payload +&#x3D; &quot;A&quot;*8</span><br><span class="line">payload +&#x3D; p64(libc_base + libc.symbols[&#39;system&#39;])       # ((_IO_strfile *) fp)-&gt;_s._free_buffer</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-组合-fastbin-attack"><a href="#3-组合-fastbin-attack" class="headerlink" title="3.组合 fastbin attack"></a>3.组合 fastbin attack</h5><h6 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h6><ul>
+<li>把 <code>bk</code> 改成 <code>global_max_fast-0x10</code> 触发 <code>unsorted bin attack</code> 后， <code>global_max_fast</code>会被修改成一个很大的值（指针），所以之后的 内存 分配 和 释放 都会按 <code>fastbin</code> 来</li>
+<li>之后看情况进行 <strong>伪fastbin attack</strong></li>
+</ul>
+<h6 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h6><p>把 <code>bk</code> 改成 <strong>libc.symbols[‘__free_hook’] - 0x50</strong> 触发 <code>unsorted bin attack</code> （在 free_hook-0x30开始 的 0x30 个字节 是 <em>IO_stdfile</em>_*_lock区域，用于 std 类文件的锁操作，这个区域的内存会被经常清零。）后， <code>free_hook</code> 前面就会出现 <code>p64(0x7f)</code> ,之后就可以通过 <code>fastbin attack</code> 修改 <code>free_hook</code></p>
+<h5 id="4-结合-largebin-和-dl-open-hook"><a href="#4-结合-largebin-和-dl-open-hook" class="headerlink" title="4.结合 largebin 和 _dl_open_hook"></a>4.结合 largebin 和 _dl_open_hook</h5><p>遍历unsorted bin主要靠bk，且chunk放入largebin的过程没什么检查，利用chunk放入largebin的过程任意地址写</p>
+<ul>
+<li>在堆上通过修改 unsorted bin的 bk指针 伪造<strong>unsorted bin(A B C D)，(0x400, 0x30, 0x420, 0x30)</strong></li>
+<li>分配 0x30 , <strong>A 进入 largebin, B 被分配</strong></li>
+<li>修改 <strong>A-&gt;bk = _dl_open_hook - 0x10 and A-&gt;bk_nextsize = _dl_open_hook - 0x20</strong></li>
+<li>分配 0x30 , C 进入 largebin, 会导致 <code>A-&gt;bk-&gt;fd = C , A-&gt;bk_nextsize-&gt;fd_nextsize = C</code> （其实就是 ***_dl_open_hook = C**)</li>
+<li>此时<code>_dl_open_hook</code> 指针被改成 C 的地址， 然后在C中设置 <strong>p64(libc.symbols[‘__libc_dlsym’] + 4)+p64(one_gadget)+p64(one_gadget)</strong> ， <strong>伪造 <code>dl_open_hook</code> 结构体。</strong></li>
+<li>后面的执行过程会调用 <code>_dl_open_hook</code>， 就会调用 <code>__libc_dlsym + 4</code>, 这里面会 <strong>跳转到 <code>dl_open_hook</code> 结构体偏移 8 的值</strong>处 , 也就是 <code>one_gadget</code> 的地址</li>
+</ul>
+<h2 id="double-free"><a href="#double-free" class="headerlink" title="double free"></a>double free</h2><p>即指针free后未置零</p>
+<h3 id="组合拳套路"><a href="#组合拳套路" class="headerlink" title="组合拳套路"></a>组合拳套路</h3><h4 id="信息泄露"><a href="#信息泄露" class="headerlink" title="信息泄露"></a>信息泄露</h4><p>大块拆小块</p>
+<ul>
+<li><p>分配一个 <code>0x120</code> 的 <code>chunk</code>, <code>p1</code> 指向 它。 然后释放掉他</p>
+</li>
+<li><p>分配两个 <code>0x90</code> 的 <code>chunk</code> 重用刚刚 <code>free</code> 掉的 <code>chunk</code>, 可以发现此时 <code>p1==p2</code></p>
+</li>
+<li><p>此时再次 <code>free(p1)</code>, 在 <code>p2-&gt;fd</code> 和 <code>p2-&gt;bk</code> 会写入 <code>main_arean</code> 的地址（<code>free</code> 之后大小大于 <code>fastbin</code>的范围，进入 <code>unsorted bin</code>)</p>
+</li>
+<li><p>然后打印 <code>p2</code> 的内容就可以拿到 <code>libc</code> 的地址</p>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20180423214605-ab559690-46fc-1.png" alt="image.png"></p>
+</li>
+</ul>
+<h4 id="overlap-chunk"><a href="#overlap-chunk" class="headerlink" title="overlap+chunk"></a>overlap+chunk</h4><p>小块融合成大块。</p>
+<ul>
+<li>首先分配两个 <code>0x90</code> 的 <code>chunk (p0, p1)</code> ，然后释放掉，会进行合并，形成 一个 <code>0x120</code> 的 <code>unsorted bin</code></li>
+<li>然后分配一个 <code>0x120</code> 的 <code>chunk (p2)</code> , 则 <code>p0=p2</code> ， 此时 <code>p0</code> 所在的 <code>chunk</code> 可以包含 <code>p1</code> 的 <code>chunk</code></li>
+<li>然后在 <code>p0</code> 所在的 <code>chunk</code> 伪造一个 <code> fake free chunk</code>， 设置好 <code>fd</code> 和 <code>bk</code>为target-0x18和target-0x10 , 然后释放 <code>p1</code> 触发 <code>unlink</code></li>
+</ul>
+<h2 id="off-by-one："><a href="#off-by-one：" class="headerlink" title="off by one："></a>off by one：</h2><p>分配0x28这种类型堆块时，因为off by one，可修改下个chunk的size的第一个字节</p>
+<p>利用：</p>
+<ul>
+<li><p>在这种情况下，溢出的那个字节不受限制，此时的利用思路就是，多分配几个 <code>chunk</code> ，然后利用第一个来溢出修改第二个 <code>chunk</code> 的 <code>size</code>（<strong>改大</strong>）, 然后 <code>free(chunk_2)</code> , 就可以 <code>overlap chunk 3</code>, 要非常注意 in_used 位的设置</p>
+</li>
+<li><p>chunk extend used的chunk：有堆块AB，使堆块A的size扩展包含堆块B,freeA后再malloc恰当的堆块可使该堆块控制堆块B的header</p>
+</li>
+<li><p>chunk extend free的chunk：有堆块ABC，B为free状态，堆块A溢出改写B的size，再mallocB，可通过B可控制C的header</p>
+<p><strong>off by one与堆溢出：</strong></p>
+</li>
+<li><p>信息泄露利用：使堆块A包含堆块B，两者分别是fastbin大小，加上刚好是unsortedbin大小，修改堆块A的size为两者之和释放后会进入unsorted bin中，再申请堆块A原本的大小就会从unsorted bin中切割，使main_arena+0x58来到堆块B的fd域中，从而泄露main_arena</p>
+</li>
+<li><p>unlink利用：堆块AB，在堆块A构造fake chunk，fd和包括为为target-0x18和target-0x10，效果：使target处指针变成target-0x18（P 的指针指向了比自己低 0x18 的地址）</p>
+</li>
+</ul>
+<h2 id="off-by-null："><a href="#off-by-null：" class="headerlink" title="off by null："></a>off by null：</h2><p>只能溢出\x00字节，同时pre_inuse变为0。</p>
+<h5 id="shrink-free-chunk-size-向后合并"><a href="#shrink-free-chunk-size-向后合并" class="headerlink" title="shrink free chunk size(向后合并)"></a>shrink free chunk size(向后合并)</h5><ul>
+<li>首先分配 <code>3</code> 个 <code>chunk (A B D)</code> , 大小分别为 <code>0x110 , 0x210, 0x110</code></li>
+<li>然后 释放 <code>B</code> ， 此时 <strong>D-&gt;pre_inused = 0 and D-&gt;pre_size = 0x210</strong></li>
+<li>修改 <code>B+0x200</code> 处 为 <code>p64(0x200)</code> ，绕过新版 libc 的 <strong>chunksize(P) != prev_size (next_chunk(P))</strong> 检查</li>
+</ul>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-abe99aca-46fc-1.png" alt="image.png"></p>
+<ul>
+<li>然后分配两个 <code>chunk (P, K)</code>, 大小为 <code>0x110, 0x90</code></li>
+<li>释放掉 <code>P</code> , 此时 <code>P</code> 会进入 <code>unsorted bin</code> , <strong>fd, bk 是有效的</strong> <strong>， 原因是 后面合并 D 时需要 unlink</strong></li>
+<li>释放 <code>D</code> , 发现 <code>D-&gt;pre_inused=0</code>, 说明前一个 <code>chunk</code> 已经 <code>free</code>, 需要合并。 根据 <code>pre_size</code> 找到 <code>P</code> , 然后 <code>unlink(P)</code> 合并得到一个 <code>0x330</code> 的 <code>unsorted bin</code>， 此时 <code>K</code> 位于 <code>unsorted bin</code> 内部， <strong>overlap chunk done</strong></li>
+</ul>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-ac017a1e-46fc-1.png" alt="image.png"></p>
+<h6 id="布局过程中的一些-tips"><a href="#布局过程中的一些-tips" class="headerlink" title="布局过程中的一些 tips"></a>布局过程中的一些 tips</h6><ul>
+<li>在第三步 ，释放 B 之前把 <code>B+0x200</code> 处 设置 <code>p64(0x200)</code> ， 因为新版的 <code>libc</code> 会检验 <code>chunksize(P) != prev_size (next_chunk(P))</code><ul>
+<li><code>off by null</code> 缩小 <code>B</code> 以后，分配 <code>P</code> 其大小不能再 <code>fastbin</code> 的范围内，后面释放 <code>D</code> 需要向前合并，会进行 <code>unlink</code> 操作，所以大小 大于 <code>fastbin</code> ， <code>free(P)</code>后 <code>P</code> 会进入 <code>unsorted bin</code> ，此时他的 <code>fd</code> , <code>bk</code> 都是正常的，正常 <code>unlink</code> 。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://gblobscdn.gitbook.com/assets%2F-MHeffotUnwuuxDxBYkc%2Fsync%2F19031b0d57cede431d04da405fd251ad6a2d8257.png?alt=media" alt="套路"></p>
+<p>例题：QCTF babyheap</p>
+<p>trick：无edit，利用add delete add达到edit效果。为了deleteD时能触发consolidatie，要让D的in_used置0，需deleteB，freeB过程B中伪造的prev_size不会消除。不同点：目标是泄露libc，所以最后overlapping那一步改为切割unsortedbin使main_arena+88流落到last_remainder</p>
+<h5 id="修改-pre-inused-向前合并"><a href="#修改-pre-inused-向前合并" class="headerlink" title="修改 pre_inused + 向前合并"></a>修改 pre_inused + 向前合并</h5><h6 id="方案一-1"><a href="#方案一-1" class="headerlink" title="方案一"></a><strong>方案一</strong></h6><ul>
+<li>首先分配 <code>4</code> 个 <code>chunk (A B C D)</code> , 大小分别为 <code>0x100, 0x100, 0x100, 0x80</code>. 最后那个用于防止 <code>top_chunk</code> 合并</li>
+<li>然后释放 <code>A</code> , 此时 <code>A</code> 进入 <code>unsorted bin</code> , 生成了有效的 <code>FD</code> 和 <code>BK</code>，为了<strong>可以在后面的融合中成功 unlink，如果是tcache不必freeA</strong></li>
+<li>然后利用 <code>off by null</code> , <strong>设置 C 的 pre_size 和 pre_inused</strong> 。</li>
+<li>释放 <code>C</code> , 系统 根据 <strong>C 的 pre_size 找到 A 进行合并</strong>，首先 <code>unlink(A)</code> 因为 <code>A</code> 已经在 <code>unsorted bin</code>，不会出错，然后就会有一个 <code>0x300</code> 的 <code>unsorted bin</code> , 此时 <code>B</code> 位于 该 <code>unsorted bin</code> 的 中间</li>
+</ul>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-ac16790a-46fc-1.png" alt="image.png"></p>
+<p>例题：hitcon2018 children_tcache</p>
+<p>offbynull，该题因为是tcache，所以不用freeA。该题难点在于free后会对堆块内容值0xda，所以无法简单覆盖prev_size。又因为是tcache，通过offbynull把下个chunk的prev_size置零后不会再修改，不过prev_size出现0xda，可以通过多次add delete，每次add的size都减少，把prev_size中被修改的0xda置零。最终nextchunk的prev_inuse为0，prev_size包括了A和B，成功overlap</p>
+<h6 id="方案二-1"><a href="#方案二-1" class="headerlink" title="方案二"></a>方案二</h6><p>如果程序限制只能在触发 <code>off by null</code> 之后才能 释放 <code>A</code> ，需要在 <code>A</code> 和 <code>B</code> 之间多分配一个内存块 <strong>x（0x20)</strong>, 原因是 触发 <code>off by null</code> 后 <code>B</code> 被标识<strong>已经 free</strong> , 那么此时再 释放 <code>A</code> 就会对 <code>B</code> 进行 <code>unlink</code> ，此时 <code>B</code> 中 <code>fd</code> 和 <code>bk</code> 是过不了 检查的（<strong>B已经分配，并已经被用来进行 off by null</strong> ) 。</p>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20180423214606-ac2af81c-46fc-1.png" alt="image.png"></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hac425/p/9416792.html">堆利用总结</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.secpulse.com/archives/71958.html">tcache基础知识</a></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>Author：<a href="https://z0xi.github.io">z0xi</a>
+            <p>原文链接：<a href="https://z0xi.github.io/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/">https://z0xi.github.io/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/</a>
+            <p>发表日期：<a href="https://z0xi.github.io/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/">March 15th 2021, 12:27:00 pm</a>
+            <p>更新日期：<a href="https://z0xi.github.io/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/">March 15th 2021, 1:10:21 pm</a>
+            <p>版权声明：本文采用<a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2021/03/15/%E4%BB%8E%E4%B8%80%E9%81%93%E9%A2%98%E4%B8%AD%E5%AD%A6%E4%B9%A0Glibc2.27%E5%A0%86%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6/" title= "从一道题学习Glibc2.27堆管理机制">
+                    <div class="nextTitle">从一道题学习Glibc2.27堆管理机制</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2021/03/15/%E5%88%9D%E6%9D%A5%E5%92%8B%E5%88%B0/" title= "初来咋到">
+                    <div class="prevTitle">初来咋到</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- gitalk评论 -->
+
+    <!-- utteranc评论 -->
+
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:z0xi@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/z0xi" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84malloc%E5%92%8Cfree%E8%BF%87%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">简单的malloc和free过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin-attack"><span class="toc-number">2.</span> <span class="toc-text">fastbin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-malloc-hook%E9%99%84%E8%BF%91%EF%BC%8C"><span class="toc-number">2.0.1.</span> <span class="toc-text">1._malloc_hook附近，</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-main-arena%E7%9A%84fastbinY%E6%95%B0%E7%BB%84%EF%BC%88%E5%BE%85%E8%80%83%E7%A9%B6%EF%BC%89"><span class="toc-number">2.0.2.</span> <span class="toc-text">2.main_arena的fastbinY数组（待考究）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-std-%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">2.0.3.</span> <span class="toc-text">3.std*结构体</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-fastbin%E5%9C%A8main-arena%E6%9E%84%E9%80%A0size%EF%BC%9A"><span class="toc-number">2.0.4.</span> <span class="toc-text">4.fastbin在main_arena构造size：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unsorted-bin-attack"><span class="toc-number">3.</span> <span class="toc-text">unsorted bin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">3.0.1.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E5%86%99stdin-gt-IO-buf-end"><span class="toc-number">3.0.1.1.</span> <span class="toc-text">1.写stdin-&gt;_IO_buf_end</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-IO-list-all-%E5%92%8C-abort-%E4%BB%A5%E5%8F%8A-%E4%BF%AE%E6%94%B9%E8%99%9A%E8%A1%A8%E5%88%B0-IO-wstrn-jumps%EF%BC%88SCTF2018-bufoverflow-a%EF%BC%89"><span class="toc-number">3.0.1.2.</span> <span class="toc-text">2.__IO_list_all 和 abort 以及 修改虚表到 _IO_wstrn_jumps（SCTF2018 bufoverflow_a）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-%E7%BB%84%E5%90%88-fastbin-attack"><span class="toc-number">3.0.1.3.</span> <span class="toc-text">3.组合 fastbin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%B8%80"><span class="toc-number">3.0.1.3.1.</span> <span class="toc-text">方案一</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%BA%8C"><span class="toc-number">3.0.1.3.2.</span> <span class="toc-text">方案二</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4-%E7%BB%93%E5%90%88-largebin-%E5%92%8C-dl-open-hook"><span class="toc-number">3.0.1.4.</span> <span class="toc-text">4.结合 largebin 和 _dl_open_hook</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#double-free"><span class="toc-number">4.</span> <span class="toc-text">double free</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%84%E5%90%88%E6%8B%B3%E5%A5%97%E8%B7%AF"><span class="toc-number">4.1.</span> <span class="toc-text">组合拳套路</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">4.1.1.</span> <span class="toc-text">信息泄露</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#overlap-chunk"><span class="toc-number">4.1.2.</span> <span class="toc-text">overlap+chunk</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#off-by-one%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">off by one：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#off-by-null%EF%BC%9A"><span class="toc-number">6.</span> <span class="toc-text">off by null：</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#shrink-free-chunk-size-%E5%90%91%E5%90%8E%E5%90%88%E5%B9%B6"><span class="toc-number">6.0.0.1.</span> <span class="toc-text">shrink free chunk size(向后合并)</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E5%B8%83%E5%B1%80%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B-tips"><span class="toc-number">6.0.0.1.1.</span> <span class="toc-text">布局过程中的一些 tips</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9-pre-inused-%E5%90%91%E5%89%8D%E5%90%88%E5%B9%B6"><span class="toc-number">6.0.0.2.</span> <span class="toc-text">修改 pre_inused + 向前合并</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%B8%80-1"><span class="toc-number">6.0.0.2.1.</span> <span class="toc-text">方案一</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%BA%8C-1"><span class="toc-number">6.0.0.2.2.</span> <span class="toc-text">方案二</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 3
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2021 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/%E4%BB%8E%E4%B8%80%E9%81%93%E9%A2%98%E4%B8%AD%E5%AD%A6%E4%B9%A0Glibc2.27%E5%A0%86%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6/" >从一道题学习Glibc2.27堆管理机制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/" >堆利用总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/%E5%88%9D%E6%9D%A5%E5%92%8B%E5%88%B0/" >初来咋到</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="heap"><span class="iconfont-archer">&#xe606;</span>heap</span>
+    
+        <span class="sidebar-tag-name" data-tags="堆管理"><span class="iconfont-archer">&#xe606;</span>堆管理</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="pwn"><span class="iconfont-archer">&#xe60a;</span>pwn</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "z0xi"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

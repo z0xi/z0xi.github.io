@@ -13,24 +13,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
-    <meta name="author" content="John Doe">
+    <meta name="author" content="z0xi">
     <meta name="renderer" content="webkit">
-    <meta name="copyright" content="John Doe">
+    <meta name="copyright" content="z0xi">
     
     <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
     
     <meta name="description" content="">
     <meta property="og:type" content="website">
 <meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:url" content="https://z0xi.github.io/index.html">
 <meta property="og:site_name" content="Hexo">
 <meta property="og:locale" content="en_US">
-<meta property="article:author" content="John Doe">
+<meta property="article:author" content="z0xi">
 <meta name="twitter:card" content="summary">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     
-    <title>fi3ework&#39;s Studio</title>
+    <title>z0xi&#39;s Blog</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -218,7 +218,7 @@
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
     
-    <a class="home-link" href=/>fi3ework's Studio.</a>
+    <a class="home-link" href=/>z0xi's Blog</a>
 </header>
     <div class="wrapper">
         <div class="site-intro" style="
@@ -244,7 +244,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            fi3ework's Studio.
+            z0xi's Blog
             <!-- 文章页  -->
             
         </h1>
@@ -253,7 +253,7 @@ height:50vh;
             <!-- 主页副标题  -->
             
             
-                it's better to burn out than to fade away
+                keep calm & carry on
             
             <!-- 文章页  -->
             
@@ -367,16 +367,80 @@ height:50vh;
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2021/03/15/hello-world/" >
+        <a class="abstract-title" href = "/2021/03/15/%E4%BB%8E%E4%B8%80%E9%81%93%E9%A2%98%E4%B8%AD%E5%AD%A6%E4%B9%A0Glibc2.27%E5%A0%86%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6/" >
             
-                <span>Hello World</span>
+                <span>从一道题学习Glibc2.27堆管理机制</span>
         </a>
         <div class="abstract-content">
-            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick StartCreate a new post1$ hexo new &quot;My New Post&quot;
+            众所周知，Glibc2.26以后增加了tcache机制，而比赛中通常会使用2.27版本的题目。于是这里从最近一道题目中总结一些Glibc的堆malloc和free时过程和保护机制。
+starCTF2021 babyheap题目在此下载
 
-More info: Writing
-Run server1$ hexo ...
+
+
+
+题目的add，delete，edit，show功能如上图。漏洞很明显，UAF漏洞，但是难点在于每个堆块的前八个字节都无法直接写，这意味着并不能简单的double free。这里就得利用堆管理机制。
+Glibc2.27堆的malloc和freetcache bins是一个长度为64的字节数组，每个字节数组对应一条链表。所以tcachebins只能存放...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/03/15</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "heap">heap</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "堆管理">堆管理</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/" >
+            
+                <span>堆利用总结</span>
+        </a>
+        <div class="abstract-content">
+            <p>从网上一些分享里面截取记录的，个人使用向</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2021/03/15</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "heap">heap</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href = "/2021/03/15/%E5%88%9D%E6%9D%A5%E5%92%8B%E5%88%B0/" >
+            
+                <span>初来咋到</span>
+        </a>
+        <div class="abstract-content">
+            其实很早就写点东西了，今天心血来潮就把博客搭建起来了…那就慢慢开始沉淀下来……
+
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
@@ -394,8 +458,8 @@ Run server1$ hexo ...
             <!-- profile -->
             
             <div class="profile">
-    <img class="profile-avatar" alt="avatar" src= /avatar/Misaka.jpg >
-    <div class="profile-name">fi3ework</div>
+    <img class="profile-avatar" alt="avatar" src= /avatar/avatar.jpg >
+    <div class="profile-name">z0xi</div>
     
     <div class="profile-signature">
         witness me
@@ -407,22 +471,13 @@ Run server1$ hexo ...
     
         
             
-                <a href="mailto:12345@qq.com" class="iconfont-archer email" title=email ></a>
+                <a href="mailto:z0xi@qq.com" class="iconfont-archer email" title=email ></a>
             
         
     
         
             
-                <a href="//github.com/fi3ework" class="iconfont-archer github" target="_blank" title=github></a>
-            
-        
-    
-        
-            
-                <span class="iconfont-archer wechat" title=wechat>
-                  
-                  <img class="profile-qr" src="/assets/example_qr.png" />
-                </span>
+                <a href="//github.com/z0xi" class="iconfont-archer github" target="_blank" title=github></a>
             
         
     
@@ -464,25 +519,6 @@ Run server1$ hexo ...
     </div>
     
     
-        <div class="friends">
-            <div>FRIENDS</div>
-            
-                
-                    <span>
-                        <a href= //www.baidu.com target="_black">friendA</a>
-                    </span>
-                
-            
-                
-                    <span>
-                        <a href= //www.google.com target="_black">friendB</a>
-                    </span>
-                
-            
-                
-            
-        </div>
-    
     
         <div class="about-me">
             <a href = "/about" >ABOUT ME</a>
@@ -499,22 +535,13 @@ Run server1$ hexo ...
     
         
             
-                <a href="mailto:12345@qq.com" class="iconfont-archer email" title=email ></a>
+                <a href="mailto:z0xi@qq.com" class="iconfont-archer email" title=email ></a>
             
         
     
         
             
-                <a href="//github.com/fi3ework" class="iconfont-archer github" target="_blank" title=github></a>
-            
-        
-    
-        
-            
-                <span class="iconfont-archer wechat" title=wechat>
-                  
-                  <img class="profile-qr" src="/assets/example_qr.png" />
-                </span>
+                <a href="//github.com/z0xi" class="iconfont-archer github" target="_blank" title=github></a>
             
         
     
@@ -593,9 +620,27 @@ Run server1$ hexo ...
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 1
+        Total : 3
         </div>
         <!-- search  -->
         
@@ -611,13 +656,27 @@ Run server1$ hexo ...
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/hello-world/" >Hello World</a>
+            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/%E4%BB%8E%E4%B8%80%E9%81%93%E9%A2%98%E4%B8%AD%E5%AD%A6%E4%B9%A0Glibc2.27%E5%A0%86%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6/" >从一道题学习Glibc2.27堆管理机制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/%E5%A0%86%E5%88%A9%E7%94%A8/" >堆利用总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/15</span><a class="archive-post-title" href= "/2021/03/15/%E5%88%9D%E6%9D%A5%E5%92%8B%E5%88%B0/" >初来咋到</a>
         </li>
     
     </div>
   </div>
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="heap"><span class="iconfont-archer">&#xe606;</span>heap</span>
+    
+        <span class="sidebar-tag-name" data-tags="堆管理"><span class="iconfont-archer">&#xe606;</span>堆管理</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
@@ -652,6 +711,8 @@ jsonContent:
         <div class="sidebar-panel-categories">
     <div class="sidebar-categories-name">
     
+        <span class="sidebar-category-name" data-categories="pwn"><span class="iconfont-archer">&#xe60a;</span>pwn</span>
+    
     </div>
     <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
     <div class="sidebar-categories-list"></div>
@@ -661,7 +722,7 @@ jsonContent:
     <script>
     var siteMeta = {
         root: "/",
-        author: "John Doe"
+        author: "z0xi"
     }
 </script>
     <!-- CDN failover -->
